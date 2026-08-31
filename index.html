@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VenWhoVian — Modder &amp; Developer</title>
+<meta name="description" content="VenWhoVian — developer of Ringbound, a Sonic the Hedgehog mod, and contributor to Gravestone: Core, Herotime and Quirk Odyssey with the Gravestone Team.">
+<meta name="theme-color" content="#070b18">
+
+<!-- Social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="VenWhoVian — Modder &amp; Developer">
+<meta property="og:description" content="Creator of Ringbound. Gravestone Team contributor. Building fast things.">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23ffcf3a' stroke-width='6'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --void:#070b18;
+  --deep:#0d1428;
+  --panel:#111a33;
+  --line:rgba(140,175,255,.16);
+  --ink:#eef3ff;
+  --dim:#9db0d6;
+  --blue:#3d7bff;
+  --sky:#5ad2ff;
+  --gold:#ffcf3a;
+  --red:#ff5252;
+  --green:#3ddc84;
+  --radius:18px;
+  --max:1120px;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.85);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ink);
+  font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px;
+  line-height:1.65;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+h1,h2,h3,.display{
+  font-family:Outfit,Inter,system-ui,sans-serif;
+  font-weight:900;
+  letter-spacing:-.03em;
+  line-height:1.02;
+  margin:0;
+}
+
+.wrap{width:min(100% - 2.5rem,var(--max));margin-inline:auto}
+
+/* ---------- animated backdrop ---------- */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.bg::before{
+  content:"";position:absolute;inset:-20%;
+  background:
+    radial-gradient(48rem 32rem at 12% -5%, rgba(61,123,255,.30), transparent 62%),
+    radial-gradient(40rem 30rem at 92% 8%, rgba(90,210,255,.16), transparent 60%),
+    radial-gradient(50rem 40rem at 50% 108%, rgba(255,207,58,.10), transparent 62%);
+}
+.grid-lines{
+  position:absolute;inset:0;opacity:.35;
+  background-image:
+    linear-gradient(to right, rgba(120,160,255,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(120,160,255,.08) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:linear-gradient(to bottom, #000 0%, transparent 78%);
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, transparent 78%);
+}
+/* speed streaks */
+.streaks{position:absolute;inset:0}
+.streak{
+  position:absolute;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(90,210,255,.65),transparent);
+  animation:dash linear infinite;
+  opacity:0;
+}
+@keyframes dash{
+  0%{transform:translateX(-30vw) scaleX(.4);opacity:0}
+  12%{opacity:.9}
+  70%{opacity:.55}
+  100%{transform:translateX(115vw) scaleX(1.6);opacity:0}
+}
+
+/* ---------- nav ---------- */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(7,11,24,.62);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s, background .3s;
+}
+header.nav.stuck{border-bottom-color:var(--line);background:rgba(7,11,24,.88)}
+.nav-in{display:flex;align-items:center;gap:1.25rem;height:68px}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:Outfit;font-weight:800;letter-spacing:-.02em;text-decoration:none;font-size:1.05rem}
+.brand .ring{width:20px;height:20px;flex:0 0 auto;animation:spinring 3.4s linear infinite}
+@keyframes spinring{
+  0%{transform:rotateY(0deg)}
+  100%{transform:rotateY(360deg)}
+}
+.nav-links{margin-left:auto;display:flex;gap:.3rem;align-items:center}
+.nav-links a{
+  text-decoration:none;color:var(--dim);font-size:.92rem;font-weight:500;
+  padding:.45rem .7rem;border-radius:9px;transition:color .2s,background .2s;
+}
+.nav-links a:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.nav-cta{
+  color:var(--void)!important;background:var(--gold)!important;font-weight:700!important;
+  padding:.5rem .95rem!important;
+}
+.nav-cta:hover{filter:brightness(1.1)}
+@media(max-width:720px){ .nav-links .hide-sm{display:none} }
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(3.5rem,10vw,7rem) 0 clamp(3rem,7vw,5rem);position:relative}
+.tagpill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  border:1px solid var(--line);background:rgba(255,255,255,.04);
+  padding:.35rem .8rem;border-radius:999px;
+  font-size:.8rem;font-weight:600;color:var(--sky);
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(61,220,132,.55)}
+  70%{box-shadow:0 0 0 10px rgba(61,220,132,0)}
+  100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}
+}
+h1.title{
+  font-size:clamp(3rem,11vw,6.5rem);
+  margin:1.1rem 0 0;
+  background:linear-gradient(105deg,#ffffff 8%,var(--sky) 48%,var(--blue) 92%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  padding-bottom:.08em;
+}
+.lede{
+  max-width:36ch;margin:1.25rem 0 0;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--dim);
+}
+.lede strong{color:var(--ink);font-weight:600}
+.hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2rem}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  text-decoration:none;font-family:Outfit;font-weight:800;font-size:.98rem;
+  padding:.85rem 1.4rem;border-radius:12px;border:1px solid transparent;
+  transition:transform .18s cubic-bezier(.2,.8,.3,1), box-shadow .2s, background .2s, border-color .2s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#2350d8);color:#fff;box-shadow:0 12px 30px -12px rgba(61,123,255,.9)}
+.btn-primary:hover{box-shadow:0 18px 38px -12px rgba(61,123,255,1)}
+.btn-ghost{border-color:var(--line);color:var(--ink);background:rgba(255,255,255,.03)}
+.btn-ghost:hover{border-color:rgba(140,175,255,.4);background:rgba(255,255,255,.07)}
+
+/* hero layout w/ ring art */
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:2rem;align-items:center}
+@media(max-width:880px){ .hero-grid{grid-template-columns:1fr} .ring-art{display:none} }
+.ring-art{position:relative;aspect-ratio:1;display:grid;place-items:center}
+.ring-art .orbit{
+  position:absolute;inset:0;border:1px dashed rgba(140,175,255,.25);border-radius:50%;
+  animation:spin 40s linear infinite;
+}
+.ring-art .orbit.two{inset:14%;border-style:solid;border-color:rgba(140,175,255,.12);animation-duration:26s;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.big-ring{width:58%;filter:drop-shadow(0 0 34px rgba(255,207,58,.45));animation:bob 4.5s ease-in-out infinite, flip 5.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(-8px)}50%{transform:translateY(8px)}}
+@keyframes flip{0%,100%{transform:rotateY(0)}50%{transform:rotateY(180deg)}}
+.spark{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.8}
+
+/* ---------- checker divider ---------- */
+.checker{
+  height:14px;
+  background-image:
+    linear-gradient(45deg, rgba(90,210,255,.22) 25%, transparent 25%, transparent 75%, rgba(90,210,255,.22) 75%),
+    linear-gradient(45deg, rgba(90,210,255,.22) 25%, transparent 25%, transparent 75%, rgba(90,210,255,.22) 75%);
+  background-size:28px 28px;
+  background-position:0 0,14px 14px;
+  border-block:1px solid var(--line);
+  animation:slide 6s linear infinite;
+}
+@keyframes slide{to{background-position:28px 0,42px 14px}}
+
+/* ---------- sections ---------- */
+section{padding:clamp(3.5rem,8vw,6rem) 0}
+.sec-head{margin-bottom:2.5rem;max-width:60ch}
+.kicker{
+  font-family:Outfit;font-weight:800;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);display:block;margin-bottom:.7rem;
+}
+h2{font-size:clamp(1.9rem,5vw,2.9rem)}
+.sec-head p{color:var(--dim);margin:.85rem 0 0}
+
+/* ---------- project cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.25rem}
+.card{
+  position:relative;overflow:hidden;isolation:isolate;
+  background:linear-gradient(180deg,var(--panel),var(--deep));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.6rem;display:flex;flex-direction:column;gap:.85rem;
+  transition:transform .25s cubic-bezier(.2,.8,.3,1), border-color .25s, box-shadow .25s;
+  text-decoration:none;
+}
+.card::before{
+  content:"";position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .3s;
+  background:radial-gradient(24rem 14rem at var(--mx,50%) var(--my,0%), rgba(61,123,255,.22), transparent 65%);
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(140,175,255,.35);box-shadow:var(--shadow)}
+.card:hover::before{opacity:1}
+.card.feature{grid-column:1/-1}
+@media(min-width:900px){
+  .card.feature{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2rem;padding:2.2rem}
+}
+.card-top{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.card h3{font-size:1.35rem}
+.card.feature h3{font-size:clamp(1.8rem,4vw,2.4rem)}
+.card p{margin:0;color:var(--dim);font-size:.97rem}
+.badge{
+  font-family:Outfit;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:.25rem .55rem;border-radius:6px;border:1px solid;
+}
+.b-wip{color:var(--gold);border-color:rgba(255,207,58,.4);background:rgba(255,207,58,.1)}
+.b-live{color:var(--green);border-color:rgba(61,220,132,.35);background:rgba(61,220,132,.1)}
+.b-team{color:var(--sky);border-color:rgba(90,210,255,.35);background:rgba(90,210,255,.1)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.2rem}
+.chip{
+  font-size:.76rem;font-weight:600;color:var(--dim);
+  border:1px solid var(--line);border-radius:999px;padding:.2rem .65rem;
+  background:rgba(255,255,255,.03);
+}
+.card-link{
+  margin-top:auto;padding-top:.4rem;
+  font-family:Outfit;font-weight:800;font-size:.9rem;color:var(--sky);
+  display:inline-flex;align-items:center;gap:.4rem;
+}
+.card:hover .card-link .arw{transform:translateX(4px)}
+.arw{transition:transform .2s}
+.card-link.muted{color:var(--dim)}
+
+/* feature art */
+.feat-art{display:none}
+@media(min-width:900px){
+  .feat-art{display:grid;place-items:center;width:150px;height:150px;position:relative}
+  .feat-art .halo{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(255,207,58,.28),transparent 68%)}
+  .feat-art svg{width:110px;animation:flip 4.6s ease-in-out infinite}
+}
+
+/* ---------- about ---------- */
+.about-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:2.5rem}
+@media(max-width:820px){.about-grid{grid-template-columns:1fr}}
+.about-body p{color:var(--dim);max-width:62ch}
+.about-body p + p{margin-top:1rem}
+.about-body a{color:var(--sky);text-decoration:none;border-bottom:1px solid rgba(90,210,255,.35)}
+.about-body a:hover{border-bottom-color:var(--sky)}
+.facts{display:flex;flex-direction:column;gap:.9rem}
+.fact{
+  border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;
+  background:rgba(255,255,255,.025);
+}
+.fact dt{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:700;margin:0}
+.fact dd{margin:.3rem 0 0;font-family:Outfit;font-weight:800;font-size:1.05rem}
+
+/* ---------- connect ---------- */
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem}
+.link-card{
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:.5rem;
+  padding:1.5rem;border-radius:var(--radius);text-decoration:none;
+  border:1px solid var(--line);background:var(--deep);
+  transition:transform .25s cubic-bezier(.2,.8,.3,1),border-color .25s,box-shadow .25s;
+}
+.link-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.link-card .ic{width:34px;height:34px;margin-bottom:.35rem}
+.link-card strong{font-family:Outfit;font-size:1.15rem;font-weight:800}
+.link-card span{color:var(--dim);font-size:.92rem}
+.link-card::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;transform:scaleX(0);transform-origin:left;
+  transition:transform .3s cubic-bezier(.2,.8,.3,1);
+}
+.link-card:hover::after{transform:scaleX(1)}
+.lc-discord::after{background:#5865F2}
+.lc-discord:hover{border-color:rgba(88,101,242,.6)}
+.lc-yt::after{background:#ff3d3d}
+.lc-yt:hover{border-color:rgba(255,61,61,.6)}
+.lc-patreon::after{background:var(--gold)}
+.lc-patreon:hover{border-color:rgba(255,207,58,.6)}
+
+/* ---------- cta band ---------- */
+.band{
+  border:1px solid var(--line);border-radius:24px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(61,123,255,.20),rgba(90,210,255,.06) 50%,rgba(255,207,58,.12));
+  padding:clamp(2rem,5vw,3.2rem);text-align:center;
+}
+.band h2{font-size:clamp(1.7rem,4.5vw,2.6rem)}
+.band p{color:var(--dim);margin:.9rem auto 1.8rem;max-width:48ch}
+.band .hero-actions{justify-content:center}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);padding:2.5rem 0;margin-top:2rem}
+.foot{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;color:var(--dim);font-size:.9rem}
+.foot nav{display:flex;gap:1.1rem;flex-wrap:wrap}
+.foot a{text-decoration:none;color:var(--dim);transition:color .2s}
+.foot a:hover{color:var(--ink)}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.8,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="grid-lines"></div>
+  <div class="streaks" id="streaks"></div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <svg class="ring" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#ffcf3a" stroke-width="6"/></svg>
+      VenWhoVian
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#work">Work</a>
+      <a href="#about" class="hide-sm">About</a>
+      <a href="#connect" class="hide-sm">Connect</a>
+      <a class="nav-cta" href="https://www.discord.com/invite/qJ8kUcH3kY" target="_blank" rel="noopener">Discord</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="tagpill"><span class="dot"></span> Ringbound — in development</span>
+        <h1 class="title">VenWhoVian</h1>
+        <p class="lede">
+          Modder and developer. I build <strong>Ringbound</strong>, a Sonic the Hedgehog mod,
+          and ship superhero-scale content with the <strong>Gravestone Team</strong>.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#work">
+            See the projects
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="https://www.discord.com/invite/qJ8kUcH3kY" target="_blank" rel="noopener">Join the Discord</a>
+        </div>
+      </div>
+
+      <div class="ring-art" aria-hidden="true">
+        <div class="orbit"></div>
+        <div class="orbit two"></div>
+        <svg class="big-ring" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#fff3b0"/>
+              <stop offset="45%" stop-color="#ffcf3a"/>
+              <stop offset="100%" stop-color="#e09a12"/>
+            </linearGradient>
+          </defs>
+          <circle cx="60" cy="60" r="42" fill="none" stroke="url(#g)" stroke-width="15"/>
+          <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-dasharray="30 210" stroke-linecap="round" transform="rotate(-40 60 60)"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <div class="checker" aria-hidden="true"></div>
+
+  <!-- WORK -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Selected work</span>
+        <h2>Mods I build</h2>
+        <p>One flagship Sonic project, plus an add-on pack line built with the Gravestone Team.</p>
+      </div>
+
+      <div class="cards">
+
+        <!-- Flagship -->
+        <article class="card feature reveal">
+          <div>
+            <div class="card-top">
+              <h3>Ringbound</h3>
+              <span class="badge b-wip">In development</span>
+            </div>
+            <p style="margin-top:.7rem;max-width:58ch">
+              My flagship project — a Sonic the Hedgehog mod built around the thing that actually makes Sonic
+              feel like Sonic: momentum. Rings, speed, and the physics to carry them.
+            </p>
+            <div class="chips">
+              <span class="chip">Sonic the Hedgehog</span>
+              <span class="chip">Momentum physics</span>
+              <span class="chip">Solo project</span>
+            </div>
+            <p class="card-link muted" style="margin-top:1.1rem">
+              Development updates drop in the Discord
+              <span class="arw">→</span>
+            </p>
+          </div>
+          <div class="feat-art">
+            <div class="halo"></div>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fff3b0"/>
+                  <stop offset="45%" stop-color="#ffcf3a"/>
+                  <stop offset="100%" stop-color="#e09a12"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="42" fill="none" stroke="url(#g2)" stroke-width="15"/>
+            </svg>
+          </div>
+        </article>
+
+        <!-- Gravestone Core -->
+        <a class="card tilt reveal" href="https://modrinth.com/mod/gravestone-core" target="_blank" rel="noopener">
+          <div class="card-top">
+            <h3>Gravestone: Core</h3>
+            <span class="badge b-live">On Modrinth</span>
+          </div>
+          <p>The foundation of the Gravestone add-on pack line — the shared base everything else in the family builds on.</p>
+          <div class="chips"><span class="chip">Gravestone Team</span><span class="chip">Add-on pack</span></div>
+          <span class="card-link">View on Modrinth <span class="arw">→</span></span>
+        </a>
+
+        <!-- Herotime -->
+        <a class="card tilt reveal" href="https://modrinth.com/mod/gravestone-herotime" target="_blank" rel="noopener">
+          <div class="card-top">
+            <h3>Gravestone: Herotime</h3>
+            <span class="badge b-live">On Modrinth</span>
+          </div>
+          <p>Superhero content for the Gravestone line — powers, characters and kit, built on top of Core.</p>
+          <div class="chips"><span class="chip">Gravestone Team</span><span class="chip">Heroes</span></div>
+          <span class="card-link">View on Modrinth <span class="arw">→</span></span>
+        </a>
+
+        <!-- Quirk Odyssey -->
+        <a class="card tilt reveal" href="https://modrinth.com/organization/gravestone-addonpack-devs" target="_blank" rel="noopener">
+          <div class="card-top">
+            <h3>Gravestone: Quirk Odyssey</h3>
+            <span class="badge b-team">Gravestone Team</span>
+          </div>
+          <p>A quirk-driven entry in the Gravestone family, built with the same team behind Core and Herotime.</p>
+          <div class="chips"><span class="chip">Gravestone Team</span><span class="chip">Quirks</span></div>
+          <span class="card-link">See the team page <span class="arw">→</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap about-grid">
+      <div class="about-body reveal">
+        <span class="kicker">About</span>
+        <h2>Hey, I'm Ven.</h2>
+        <p>
+          I'm a developer who mostly builds mods. My own project is <strong>Ringbound</strong> — a Sonic the
+          Hedgehog mod I'm building because I wanted Sonic done properly: speed you have to earn, momentum you
+          have to keep, rings that matter.
+        </p>
+        <p>
+          Alongside that I work with the
+          <a href="https://modrinth.com/organization/gravestone-addonpack-devs" target="_blank" rel="noopener">Gravestone Team</a>
+          on the Gravestone add-on pack line — <strong>Core</strong>, <strong>Herotime</strong> and
+          <strong>Quirk Odyssey</strong> — where a lot of the work is making a big shared foundation hold up
+          under everything the pack throws at it.
+        </p>
+        <p>
+          Everything ships publicly. Progress, previews and the occasional broken build all land in the
+          Discord first.
+        </p>
+      </div>
+
+      <dl class="facts reveal">
+        <div class="fact"><dt>Flagship</dt><dd>Ringbound</dd></div>
+        <div class="fact"><dt>Team</dt><dd>Gravestone Team</dd></div>
+        <div class="fact"><dt>Shipped</dt><dd>Core · Herotime · Quirk Odyssey</dd></div>
+        <div class="fact"><dt>Where I post</dt><dd>Discord &amp; YouTube</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="checker" aria-hidden="true"></div>
+
+  <!-- CONNECT -->
+  <section id="connect">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="kicker">Connect</span>
+        <h2>Find me here</h2>
+        <p>Updates, devlogs and everything in between.</p>
+      </div>
+
+      <div class="links">
+        <a class="link-card lc-discord reveal" href="https://www.discord.com/invite/qJ8kUcH3kY" target="_blank" rel="noopener">
+          <svg class="ic" viewBox="0 0 24 24" fill="#5865F2" aria-hidden="true"><path d="M20.32 4.57A19.8 19.8 0 0 0 15.43 3c-.21.38-.46.89-.63 1.29a18.3 18.3 0 0 0-5.6 0C9.03 3.89 8.77 3.38 8.56 3a19.7 19.7 0 0 0-4.89 1.57C.57 9.2-.27 13.7.15 18.14A19.9 19.9 0 0 0 6.15 21c.48-.66.91-1.36 1.28-2.1-.7-.26-1.37-.59-2-.97.17-.13.33-.26.49-.4a14.2 14.2 0 0 0 12.16 0c.16.14.32.27.49.4-.63.38-1.3.71-2 .97.37.74.8 1.44 1.28 2.1a19.9 19.9 0 0 0 6-2.86c.5-5.15-.84-9.6-3.53-13.57ZM8.02 15.41c-1.18 0-2.15-1.08-2.15-2.4s.95-2.42 2.15-2.42c1.2 0 2.17 1.09 2.15 2.42 0 1.32-.95 2.4-2.15 2.4Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.4s.95-2.42 2.15-2.42c1.2 0 2.17 1.09 2.15 2.42 0 1.32-.94 2.4-2.15 2.4Z"/></svg>
+          <strong>Discord</strong>
+          <span>The main hub — devlogs, previews, and the community around the mods.</span>
+          <span class="card-link" style="margin-top:.6rem">Join the server <span class="arw">→</span></span>
+        </a>
+
+        <a class="link-card lc-yt reveal" href="https://www.youtube.com/@VenWhoVian" target="_blank" rel="noopener">
+          <svg class="ic" viewBox="0 0 24 24" fill="#ff3d3d" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3 3 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.55 15.57V8.43L15.82 12l-6.27 3.57Z"/></svg>
+          <strong>YouTube</strong>
+          <span>Showcases, devlogs and mod footage.</span>
+          <span class="card-link" style="margin-top:.6rem">Watch the channel <span class="arw">→</span></span>
+        </a>
+
+        <a class="link-card lc-patreon reveal" href="https://patreon.com/VenWhoVian?utm_medium=unknown&amp;utm_source=join_link&amp;utm_campaign=creatorshare_creator&amp;utm_content=copyLink" target="_blank" rel="noopener">
+          <svg class="ic" viewBox="0 0 24 24" fill="#ffcf3a" aria-hidden="true"><path d="M15.39 2.1c-4.24 0-7.69 3.45-7.69 7.69 0 4.23 3.45 7.67 7.69 7.67 4.23 0 7.67-3.44 7.67-7.67 0-4.24-3.44-7.69-7.67-7.69ZM.94 22.16h3.76V2.1H.94v20.06Z"/></svg>
+          <strong>Patreon</strong>
+          <span>Support development directly and help keep the projects moving.</span>
+          <span class="card-link" style="margin-top:.6rem">Become a patron <span class="arw">→</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="wrap">
+      <div class="band reveal">
+        <h2>Ringbound is being built right now.</h2>
+        <p>Follow along while it happens — updates, previews and early looks land in the Discord first.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://www.discord.com/invite/qJ8kUcH3kY" target="_blank" rel="noopener">Join the Discord</a>
+          <a class="btn btn-ghost" href="https://patreon.com/VenWhoVian?utm_medium=unknown&amp;utm_source=join_link&amp;utm_campaign=creatorshare_creator&amp;utm_content=copyLink" target="_blank" rel="noopener">Support on Patreon</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© <span id="yr">2026</span> VenWhoVian</span>
+    <nav aria-label="Footer">
+      <a href="https://www.discord.com/invite/qJ8kUcH3kY" target="_blank" rel="noopener">Discord</a>
+      <a href="https://www.youtube.com/@VenWhoVian" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://patreon.com/VenWhoVian?utm_medium=unknown&amp;utm_source=join_link&amp;utm_campaign=creatorshare_creator&amp;utm_content=copyLink" target="_blank" rel="noopener">Patreon</a>
+      <a href="https://modrinth.com/organization/gravestone-addonpack-devs" target="_blank" rel="noopener">Modrinth</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // year
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // sticky nav border
+  var nav = document.getElementById('nav');
+  var onScroll = function(){ nav.classList.toggle('stuck', window.scrollY > 8); };
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+
+  // scroll reveal
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window) || reduce){
+    els.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:.12});
+    els.forEach(function(el, i){
+      el.style.transitionDelay = (Math.min(i,5) * 60) + 'ms';
+      io.observe(el);
+    });
+  }
+
+  // speed streaks
+  if (!reduce){
+    var host = document.getElementById('streaks');
+    for (var i = 0; i < 14; i++){
+      var s = document.createElement('div');
+      s.className = 'streak';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.width = (60 + Math.random() * 220) + 'px';
+      s.style.animationDuration = (2.6 + Math.random() * 4.5) + 's';
+      s.style.animationDelay = (Math.random() * 7) + 's';
+      s.style.opacity = (0.25 + Math.random() * 0.5);
+      host.appendChild(s);
+    }
+  }
+
+  // cursor-follow glow on cards
+  if (window.matchMedia('(hover:hover)').matches){
+    document.querySelectorAll('.card').forEach(function(card){
+      card.addEventListener('pointermove', function(e){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
